@@ -42,6 +42,52 @@ public class ClienteRepository {
         }
     }
 
+    public boolean atualizar(Cliente cliente) throws SQLException {
+
+        try (var connection = connectionFactory.getConnection()) {
+
+            var sql = """
+                    UPDATE clientes SET nome = ?, email = ?, telefone = ?
+                     WHERE id = ?""";
+
+            var statement = connection.prepareStatement(sql);
+
+            statement.setString(1, cliente.getNome());
+            statement.setString(2, cliente.getEmail());
+            statement.setString(3, cliente.getTelefone());
+            statement.setObject(4, cliente.getId());
+
+            var registroAtualizado = statement.executeUpdate();
+
+            return registroAtualizado > 0;
+
+        } catch (SQLException e) {
+            throw new SQLException("Erro ao atualizar cliente", e);
+        }
+    }
+
+    public boolean excluir(UUID id) throws SQLException {
+
+        try (var connection = connectionFactory.getConnection()) {
+
+            var sql = """
+                    UPDATE clientes SET ativo = ?
+                     WHERE id = ? AND ativo = 1""";
+
+            var statement = connection.prepareStatement(sql);
+
+            statement.setInt(1, 0);
+            statement.setObject(2, id);
+
+            var registroRemovido = statement.executeUpdate();
+
+            return registroRemovido > 0;
+
+        } catch (SQLException e) {
+            throw new SQLException("Erro ao excluir cliente", e);
+        }
+    }
+
     public List<Cliente> obterPorNome(String nome) throws SQLException {
 
         try (var connection = connectionFactory.getConnection()) {
